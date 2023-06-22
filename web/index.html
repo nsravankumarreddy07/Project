@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Link Shortener</title>
+    <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      margin-bottom: 16px;
+      width: 300px;
+    }
+
+    button {
+      padding: 8px 16px;
+    }
+
+    .short-url {
+      margin-top: 16px;
+      word-wrap: break-word;
+    }
+
+    .error-message {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+<h1>Link Shortener</h1>
+<form id="shortenForm">
+    <input type="text" name="url" placeholder="Enter a URL" required>
+    <button type="submit">Shorten</button>
+</form>
+<div id="shortUrlContainer" style="display: none;">
+    <h3>Short URL:</h3>
+    <p id="shortUrl"></p>
+</div>
+
+<script>
+    document.getElementById('shortenForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const urlInput = document.querySelector('input[name="url"]');
+      const url = urlInput.value.trim();
+
+      // Reset error message
+      urlInput.classList.remove('error-message');
+
+      // Send URL to the server
+      fetch('/shorten', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          urlInput.classList.add('error-message');
+          urlInput.value = data.error;
+        } else {
+          const shortUrl = data.shortUrl;
+          document.getElementById('shortUrl').textContent = shortUrl;
+          document.getElementById('shortUrlContainer').style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
